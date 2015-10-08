@@ -3,11 +3,14 @@ var app = (function() {
     var myForm = document.querySelector("#propCross");
     var placeInput = document.querySelector("#propLocation");
     var resultBlock = document.querySelector(".propResult");
- 
+    var searchLocation;
     var perPage;
     var searhUrl;
+    var currentPage = 1;
+    var selectItem = document.querySelector("#placesPerPage");
     var currentListPos = 0;
     var resultContent = "";
+    var template = '<div class="resultElement"><img src="{{element.img_url}}" class="col-sm-4" alt ={{element.lister_name}}/><h4 class="col-sm-8">{{element.lister_name}}</h4><strong class="col-sm-8">{{element.price_formatted}}</strong><span class="col-sm-8">{{element.summary}}</span></div>';
 
     var placeName = (function() {
       var _value = "";
@@ -21,23 +24,21 @@ var app = (function() {
       }
    })();
 
-    // function getplaceName() {
-    //   return document.querySelector("#propLocation").value;
-    // } 
     function getitemPerPage() {
-      var selectItem = document.querySelector("#placesPerPage");
       return selectItem.options[selectItem.selectedIndex].text;
     } 
    
     function eventHandler(event) {
-      event.preventDefault();
+        resultContent = "";
+        event.preventDefault();
         placeName.set(document.querySelector("#propLocation").value);
         perPage = getitemPerPage();
+        searchLocation = placeName.get(); 
         recieveData();
     }
     function recieveData() {
       $.ajax({
-        url: "http://api.nestoria.co.uk/api?country=uk&pretty=1&action=search_listings&encoding=json&listing_type=buy&page=1&number_of_results=" + perPage + "&place_name=" + placeName.get(),
+        url: "http://api.nestoria.co.uk/api?country=uk&pretty=1&action=search_listings&encoding=json&listing_type=buy&page="+ currentPage +"&number_of_results=" + perPage + "&place_name=" + searchLocation,
         method: 'GET',
         timeout: 5000,
         dataType: "jsonp",
@@ -47,13 +48,15 @@ var app = (function() {
             case "101":
             case "110":
               searchHub[placeName.get()] = data;
-              makeResultList(searchHub[placeName.get()].response.listings.slice(currentListPos, currentListPos + perPage - 1));
+              makeResultList(searchHub[searchLocation].response.listings);
+              console.log(searchHub);
             break;
             case "200":
             case "202":
-              searchHub[placeName.get()] = data;
-              makeResultList(searchHub[placeName.get()].response.listings.slice(currentListPos, currentListPos + perPage - 1));
+              searchHub[searchLocation] = data;
+              makeResultList(searchHub[searchLocation].response.listings);
               showLoactionList(data.response);
+              console.log(searchHub);
             break;
             default:
               showErrorList(data.response);
@@ -65,25 +68,24 @@ var app = (function() {
 
     }
     function makeResultList(list) {
-      console.log(list);
+ 
       list.forEach(renderResult);
       resultBlock.innerHTML = resultContent;
-      currentListPos = currentListPos + perPage;
 
     }
 
     function renderResult(element) {
-      resultContent += "<div class='resultElement'>";
-      resultContent += '<img src="' + element.img_url + '" ';
-      resultContent += 'class="col-sm-4" alt ="' + element.lister_name + '" />';
-      resultContent += '<h4 class="col-sm-8">' + element.lister_name + '</h4>';
-      resultContent += '<strong class="col-sm-8">' + element.price_formatted +'</strong>';
-      resultContent += '<span class="col-sm-8">' + element.summary + '</span>';
-      resultContent += '</div>';
+      var newStr = template;
+      newStr = newStr.replace("{{element.img_url}}", element.img_url);
+      newStr = newStr.replace("{{element.lister_name}}", element.lister_name);
+      newStr = newStr.replace("{{element.lister_name}}", element.lister_name);
+      newStr = newStr.replace("{{element.price_formatted}}", element.price_formatted);
+      newStr = newStr.replace("{{element.summary}}", element.summary);
+      resultContent += newStr;
     }
 
-
     myForm.addEventListener("submit", eventHandler);
+    selectItem.addEventListener("change", eventHandler);
   
  });
  app();
