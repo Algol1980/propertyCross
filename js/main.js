@@ -3,7 +3,6 @@ var app = (function() {
   var myForm = document.querySelector("#propCross");
   var placeInput = document.querySelector("#propLocation").value;
   var resultBlock = document.querySelector(".propResult");
-  // var resultLocations = document.querySelectorAll(".location");
   var searchLocation;
   var perPage;
   var searhUrl;
@@ -52,23 +51,18 @@ var app = (function() {
             case "110":
               searchHub[placeName.get()] = data;
               makeResultList(searchHub[searchLocation].response.listings);
-              // console.log(url);
               break;
             case "200":
             case "202":
               searchHub[searchLocation] = data;
               makeLokationsList(searchHub[searchLocation].response.locations);
-              // showLoactionList(data.response);
-              // console.log(url);
               break;
             default:
               showErrorList(data.response);
           }
-
         }
         // error: function() {}
     });
-
   }
 function showErrorList(data) {
   switch (data.application_response_code) {
@@ -90,6 +84,7 @@ function showErrorList(data) {
               showErrorList(data.response);
           }
 }
+
   function makeResultErrorList(message) {
     resultBlock.innerHTML = resultContent;
   }
@@ -123,18 +118,6 @@ function showErrorList(data) {
   myForm.addEventListener("submit", eventHandler);
   selectItem.addEventListener("change", eventHandler);
 
-
-  // [].forEach.call(document.querySelectorAll(".location"), function(el) {
-  //   el.addEventListener('click', function() {
-  //     console.log(el);
-      // console.log(el.getAttribute('dataPlaceName'));
-      // placeName.set(el.getAttribute('data-place-name'));
-      // console.log(placeName.set(el.getAttribute('data-place-name')));
-      // searchLocation = placeName.get();
-      // recieveData();
-  //   }, false);
-  // });
-
   resultBlock.onclick = function(event) {
     var target = event.target;
     if (target.className == 'location') {
@@ -145,15 +128,9 @@ function showErrorList(data) {
       recieveData();
       event.preventDefault();
     }
-      
     };
 
-  
 
 
-  }
-
-
-
-);
+});
 app();
