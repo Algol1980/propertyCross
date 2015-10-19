@@ -10,7 +10,7 @@ var app = (function() {
   var selectItem = document.querySelector("#placesPerPage");
   var currentListPos = 0;
   var resultContent = "";
-  var template = '<div class="resultElement"><img src="{{element.img_url}}" class="col-sm-4" alt ={{element.title}}/><h4 class="col-sm-8">{{element.title}}</h4><strong class="col-sm-8">{{element.price_formatted}}</strong><span class="col-sm-8">{{element.summary}}</span><i class="glyphicon glyphicon-star-empty btn-lg" aria-hidden="true" id="favor"></i></div>';
+  var template = '<div class="resultElement" data-guid="{{element.guid}}"><img src="{{element.img_url}}" class="col-sm-4" alt ={{element.title}}/><h4 class="col-sm-8">{{element.title}}</h4><strong class="col-sm-8">{{element.price_formatted}}</strong><span class="col-sm-8">{{element.summary}}</span><i class="glyphicon glyphicon-star-empty btn-lg" aria-hidden="true"></i></div>';
   var templateLocation = '<div class="resultElement"><h4><a class="location" href="#" data-place-name="{{element.place_name}}">{{element.title}}<a></h4></div>';
   var templateStorage = '<div class="resultElement"><h4><a class="storage" href="#" data-search-location="{{element}}">{{element}} ({{element.results}})<a></h4></div>';
 
@@ -137,6 +137,7 @@ function showErrorList(data) {
 
   function renderResult(element) {
     var newStr = template;
+    newStr = newStr.replace("{{element.guid}}", element.guid);
     newStr = newStr.replace("{{element.img_url}}", element.img_url);
     newStr = newStr.replace("{{element.title}}", element.title);
     newStr = newStr.replace("{{element.title}}", element.title);
@@ -175,6 +176,13 @@ function showErrorList(data) {
       recieveData();
       event.preventDefault();
     }
+    if (target.classList.contains('glyphicon-star-empty')) {
+      console.log(target.classList);
+      target.classList.remove("glyphicon-star-empty");
+      target.classList.add("glyphicon-star");
+      
+    }
+    event.preventDefault();
     };
 
 
