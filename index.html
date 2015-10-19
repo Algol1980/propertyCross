@@ -30,29 +30,56 @@
     input {
         margin: 10px;
     }
-
+    
     .resultElement {
-      padding: 25px;
-      overflow: hidden;
-      text-align: left;
-      border: 1px dashed #000;
-      margin-bottom: 20px;
-      
-      
+        padding: 25px;
+        position: relative;
+        overflow: hidden;
+        text-align: left;
+        border: 1px dashed #000;
+        margin-bottom: 20px;
     }
+    
     .resultElement img {
-      height: cover;
+        height: cover;
     }
+    
     .resultElement h4 {
-      font-size: 1em;
+        font-size: 1em;
     }
-    .resultElement span, .resultElement strong {
-      float: left;
-      font-size: .7em;
+    
+    .resultElement span,
+    .resultElement strong {
+        float: left;
+        font-size: .7em;
     }
-
+    
+    .btn-success {
+        background-color: #FFE203;
+        border: 1px solid #D4BB00;
+    }
+    
+    .btn-success:hover {
+        background-color: #D4BB00;
+        border: 1px solid #BDA700;
+    }
+    
+    .resultElement>.glyphicon-star-empty,
+    .resultElement>.glyphicon-star {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        cursor: pointer;
+        padding: 0;
+        font-size: 25px;
+        color: #A7A7A7;
+    }
+    
+    .resultElement>.glyphicon-star-empty:hover,
+    .resultElement>.glyphicon-star:hover {
+        color: #FFE203;
+    }
     </style>
-
 </head>
 
 <body>
@@ -72,6 +99,9 @@
         </div>
         <input type="text" placeholder="Your Location" id="propLocation">
         <input type="submit" id="propSubmit" value="Go!">
+        <button type="button" class="btn btn-success">
+            <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+        </button>
     </form>
     <div class="propResult"></div>
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->

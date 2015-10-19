@@ -10,8 +10,9 @@ var app = (function() {
   var selectItem = document.querySelector("#placesPerPage");
   var currentListPos = 0;
   var resultContent = "";
-  var template = '<div class="resultElement"><img src="{{element.img_url}}" class="col-sm-4" alt ={{element.lister_name}}/><h4 class="col-sm-8">{{element.lister_name}}</h4><strong class="col-sm-8">{{element.price_formatted}}</strong><span class="col-sm-8">{{element.summary}}</span></div>';
+  var template = '<div class="resultElement"><img src="{{element.img_url}}" class="col-sm-4" alt ={{element.title}}/><h4 class="col-sm-8">{{element.title}}</h4><strong class="col-sm-8">{{element.price_formatted}}</strong><span class="col-sm-8">{{element.summary}}</span><i class="glyphicon glyphicon-star-empty btn-lg" aria-hidden="true" id="favor"></i></div>';
   var templateLocation = '<div class="resultElement"><h4><a class="location" href="#" data-place-name="{{element.place_name}}">{{element.title}}<a></h4></div>';
+  var templateStorage = '<div class="resultElement"><h4><a class="storage" href="#" data-search-location="{{element}}">{{element}} ({{element.results}})<a></h4></div>';
 
   var placeName = (function() {
     var _value = "";
@@ -24,7 +25,14 @@ var app = (function() {
       }
     }
   })();
+   window.onload = function () {
+    var fromLocal = JSON.parse(localStorage.getItem("success locations"));
+  if (fromLocal) {
+    makeStorageList(fromLocal);
+    // console.log(fromLocal);
+  }
 
+   }
   function getitemPerPage() {
     return selectItem.options[selectItem.selectedIndex].text;
   }
@@ -51,6 +59,7 @@ var app = (function() {
             case "110":
               searchHub[placeName.get()] = data;
               makeResultList(searchHub[searchLocation].response.listings);
+              saveInStorage(searchLocation, data.response.total_results);
               break;
             case "200":
             case "202":
@@ -64,6 +73,19 @@ var app = (function() {
         // error: function() {}
     });
   }
+
+function saveInStorage(data, results) {
+  var fromLocal = JSON.parse(localStorage.getItem("success locations"));
+  if (!fromLocal) {
+    fromLocal = {}
+  }
+  fromLocal[data] = {"results" : results};
+  
+  // fromLocal.push(data);
+  localStorage.setItem("success locations", JSON.stringify(fromLocal));
+  localStorage.getItem("success locations");
+}
+
 function showErrorList(data) {
   switch (data.application_response_code) {
             case "100":
@@ -88,6 +110,9 @@ function showErrorList(data) {
   function makeResultErrorList(message) {
     resultBlock.innerHTML = resultContent;
   }
+
+
+
   function makeResultList(list) {
     list.forEach(renderResult);
     resultBlock.innerHTML = resultContent;
@@ -96,13 +121,25 @@ function showErrorList(data) {
   function makeLokationsList(list) {
     list.forEach(renderLocationResult);
     resultBlock.innerHTML = resultContent;
+  }    
+
+
+  function makeStorageList(list) {
+    for (item in list) {
+    newStr = templateStorage;
+    newStr = newStr.replace("{{element}}", item);
+    newStr = newStr.replace("{{element}}", item);
+    newStr = newStr.replace("{{element.results}}", list[item].results);
+    resultContent += newStr;
+    }
+    resultBlock.innerHTML = resultContent;
   }
 
   function renderResult(element) {
     var newStr = template;
     newStr = newStr.replace("{{element.img_url}}", element.img_url);
-    newStr = newStr.replace("{{element.lister_name}}", element.lister_name);
-    newStr = newStr.replace("{{element.lister_name}}", element.lister_name);
+    newStr = newStr.replace("{{element.title}}", element.title);
+    newStr = newStr.replace("{{element.title}}", element.title);
     newStr = newStr.replace("{{element.price_formatted}}", element.price_formatted);
     newStr = newStr.replace("{{element.summary}}", element.summary);
     resultContent += newStr;
@@ -115,6 +152,14 @@ function showErrorList(data) {
     resultContent += newStr;
   }
 
+
+  function renderLocalStorage(element) {
+    var newStr = templateStorage;
+    newStr = newStr.replace("{{element}}", element);
+    newStr = newStr.replace("{{element.results}}", element.results);
+    resultContent += newStr;
+  }
+
   myForm.addEventListener("submit", eventHandler);
   selectItem.addEventListener("change", eventHandler);
 
@@ -123,8 +168,10 @@ function showErrorList(data) {
     if (target.className == 'location') {
       placeName.set(target.getAttribute('data-place-name'));
       searchLocation = placeName.get();
+      resultContent = "";
       resultBlock.innerHTML = "";
       document.querySelector("#propLocation").value = searchLocation;
+      console.log(document.querySelector("#propLocation").value);
       recieveData();
       event.preventDefault();
     }
