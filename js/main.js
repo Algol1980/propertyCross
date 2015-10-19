@@ -11,6 +11,7 @@ var app = (function() {
   var currentListPos = 0;
   var resultContent = "";
   var template = '<div class="resultElement" data-guid="{{element.guid}}"><img src="{{element.img_url}}" class="col-sm-4" alt ={{element.title}}/><h4 class="col-sm-8">{{element.title}}</h4><strong class="col-sm-8">{{element.price_formatted}}</strong><span class="col-sm-8">{{element.summary}}</span><i class="glyphicon glyphicon-star-empty btn-lg" aria-hidden="true"></i></div>';
+  var templateFavorite = '<div class="resultElement" data-guid="{{element.guid}}"><img src="{{element.img_url}}" class="col-sm-4" alt ={{element.title}}/><h4 class="col-sm-8">{{element.title}}</h4><strong class="col-sm-8">{{element.price_formatted}}</strong><span class="col-sm-8">{{element.summary}}</span><i class="glyphicon glyphicon-star btn-lg" aria-hidden="true"></i></div>';
   var templateLocation = '<div class="resultElement"><h4><a class="location" href="#" data-place-name="{{element.place_name}}">{{element.title}}<a></h4></div>';
   var templateStorage = '<div class="resultElement"><h4><a class="storage" href="#" data-search-location="{{element}}">{{element}} ({{element.results}})<a></h4></div>';
 
@@ -29,7 +30,6 @@ var app = (function() {
     var fromLocal = JSON.parse(localStorage.getItem("success locations"));
   if (fromLocal) {
     makeStorageList(fromLocal);
-    // console.log(fromLocal);
   }
 
    }
@@ -80,10 +80,19 @@ function saveInStorage(data, results) {
     fromLocal = {}
   }
   fromLocal[data] = {"results" : results};
-  
-  // fromLocal.push(data);
   localStorage.setItem("success locations", JSON.stringify(fromLocal));
   localStorage.getItem("success locations");
+}
+
+function saveInFavorites(data, index) {
+  var fromLocal = JSON.parse(localStorage.getItem("favorite places"));
+  if (!fromLocal) {
+    fromLocal = {}
+  }
+  fromLocal[index] = data;
+  
+  localStorage.setItem("favorite places", JSON.stringify(fromLocal));
+  localStorage.getItem("favorite places");
 }
 
 function showErrorList(data) {
@@ -93,14 +102,12 @@ function showErrorList(data) {
             case "110":
               searchHub[placeName.get()] = data;
               makeResultList(searchHub[searchLocation].response.listings);
-              // console.log(url);
               break;
             case "200":
             case "202":
               searchHub[searchLocation] = data;
               makeLokationsList(searchHub[searchLocation].response.locations);
-              // showLoactionList(data.response);
-              // console.log(url);
+              console.log(url);
               break;
             default:
               showErrorList(data.response);
@@ -172,19 +179,42 @@ function showErrorList(data) {
       resultContent = "";
       resultBlock.innerHTML = "";
       document.querySelector("#propLocation").value = searchLocation;
-      console.log(document.querySelector("#propLocation").value);
       recieveData();
       event.preventDefault();
     }
     if (target.classList.contains('glyphicon-star-empty')) {
-      console.log(target.classList);
       target.classList.remove("glyphicon-star-empty");
       target.classList.add("glyphicon-star");
-      
+      var favoriteId = target.parentNode.getAttribute("data-guid");
+      searchFavoriteData(favoriteId, searchHub[searchLocation].response.listings);
+    }
+
+    if (target.classList.contains('glyphicon-star ')) {
+      target.classList.remove("glyphicon-star");
+      target.classList.add("glyphicon-star-empty");
+      var favoriteId = target.parentNode.getAttribute("data-guid");
+      removeFavorite(index)
+      searchFavoriteData(favoriteId, searchHub[searchLocation].response.listings);
     }
     event.preventDefault();
     };
 
+
+function searchFavoriteData(index, searchObj) {
+  for (item in searchObj) {
+    if (searchObj[item].guid == index)  {
+     var favObj = { 
+        "guid" : searchObj[item].guid,
+        "title" : searchObj[item].title,
+        "img_url" : searchObj[item].img_url,
+        "price_formatted" : searchObj[item].price_formatted,
+        "summary" : searchObj[item].summary
+    };
+    break;
+    }
+  } 
+  saveInFavorites(favObj, index);
+}
 
 
 });
